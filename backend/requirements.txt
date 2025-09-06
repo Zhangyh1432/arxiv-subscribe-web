@@ -1,0 +1,6 @@
+arxiv
+python-dotenv
+openai
+Flask
+Flask-Cors
+python-dateutil

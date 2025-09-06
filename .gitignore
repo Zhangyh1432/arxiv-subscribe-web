@@ -1,0 +1,10 @@
+# Environment variables
+.env
+backend/.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Data files
+backend/data/analysis_results/
