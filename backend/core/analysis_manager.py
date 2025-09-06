@@ -89,16 +89,13 @@ def process_paper_for_email(paper, task_status, logger):
     doc_lines.append(f"**Link:** {paper['pdf_url']}")
     doc_lines.append(f"**Published:** {paper['published']}")
     doc_lines.append(f"**Categories:** {', '.join(paper['categories'])}")
-    doc_lines.append("
----
-")
+    doc_lines.append("\n---\n")
     doc_lines.append("## AI-Generated Analysis (Full Text)")
     doc_lines.append(analysis_text)
     
-    sanitized_title = re.sub(r'[\/*?:"<>|]',"", paper['title'])
+    sanitized_title = re.sub(r'[\/*?:"><>|]',"", paper['title'])
     filename = f"{sanitized_title}.md"
-    content = "
-".join(doc_lines)
+    content = "\n".join(doc_lines)
 
     # Save the analysis file locally using an absolute path
     save_path = os.path.join(RESULTS_DIR, filename)

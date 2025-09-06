@@ -5,7 +5,8 @@ import os
 import requests
 import logging
 from core import arxiv_fetcher, analyzer, email_sender
-from core.history_manager import load_processed_ids, save_processed_ids
+from core.history_manager import save_processed_ids
+from core.analysis_manager import process_paper_for_email, RESULTS_DIR
 import re
 
 app = Flask(__name__)
@@ -14,145 +15,19 @@ CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
-# --- Constants ---
-BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
-RESULTS_DIR = os.path.join(BACKEND_DIR, 'data', 'analysis_results')
-
 # --- Status and Cache Objects ---
 task_status = {"status": "idle", "message": "The service is idle."}
 results_cache = []
 
-# --- Full Analysis Helper Function ---
-def _get_full_text_analysis(paper):
-    """
-    Downloads a paper's PDF, sends it to a parsing service,
-    and returns the full text analysis from an LLM.
-    Implements a caching mechanism to avoid re-analyzing processed papers.
-    """
-    processed_ids = load_processed_ids()
-    paper_id = paper.get('entry_id')
-    sanitized_title = re.sub(r'[\\/*?:"<>|]',"", paper.get('title', ''))
-    filename = f"{sanitized_title}.md"
-    cached_path = os.path.join(RESULTS_DIR, filename)
+# --- Helper: Analysis Task Runner ---
+def run_analysis_for_paper(paper):
+    """The actual analysis process for a single paper, designed to be run in a thread."""
+    dummy_task_status = {'message': ''} 
+    process_paper_for_email(paper, dummy_task_status, app.logger)
+    save_processed_ids([paper])
+    app.logger.info(f"Background analysis finished for {paper.get('entry_id')}")
 
-    # 1. Check for cached result first
-    if paper_id in processed_ids and os.path.exists(cached_path):
-        app.logger.info(f"Cache hit for paper {paper_id}. Reading from {cached_path}.")
-        try:
-            with open(cached_path, 'r', encoding='utf-8') as f:
-                # We need to extract just the analysis part, not the full markdown header
-                full_content = f.read()
-                analysis_content = full_content.split("## AI-Generated Analysis (Full Text)")[1]
-                return analysis_content.strip()
-        except Exception as e:
-            app.logger.error(f"Could not read cached file {cached_path}, re-analyzing. Error: {e}")
-            # Proceed to re-analysis if cache read fails
-
-    # 2. If not cached, perform full analysis
-    app.logger.info(f"Cache miss for paper {paper_id}. Starting full analysis.")
-    pdf_parser_url = os.getenv("PDF_PARSER_URL")
-    if not pdf_parser_url:
-        app.logger.error("PDF_PARSER_URL not configured in .env file.")
-        return "[Analysis Failed: PDF_PARSER_URL not configured]"
-
-    pdf_url = paper.get('pdf_url')
-    if not pdf_url:
-        app.logger.error(f"Paper {paper.get('title')} has no PDF URL.")
-        return "[Analysis Failed: Paper has no PDF URL]"
-
-    entry_id_short = paper_id.split('/')[-1]
-    local_pdf_filename = os.path.join(BACKEND_DIR, f"{entry_id_short}.pdf")
-    
-    try:
-        task_status['message'] = f"Downloading PDF: {paper.get('title', '')[:30]}..."
-        response = requests.get(pdf_url)
-        response.raise_for_status()
-        with open(local_pdf_filename, 'wb') as f:
-            f.write(response.content)
-
-        task_status['message'] = f"Parsing PDF: {paper.get('title', '')[:30]}..."
-        with open(local_pdf_filename, 'rb') as f:
-            files = {'files': (os.path.basename(local_pdf_filename), f, 'application/pdf')}
-            data = {'return_md': 'true'}
-            response = requests.post(pdf_parser_url, files=files, data=data)
-            response.raise_for_status()
-        
-        json_response = response.json()
-        markdown_content = json_response['results'][next(iter(json_response['results']))]['md_content']
-
-        if not markdown_content:
-            return "[Analysis Failed: Markdown content was empty after parsing]"
-        
-        task_status['message'] = f"Analyzing full text: {paper.get('title', '')[:30]}..."
-        analysis_text = analyzer.analyze_full_text(markdown_content)
-        return analysis_text
-
-    except Exception as e:
-        app.logger.error(f"Exception in analysis pipeline for {paper.get('title')}:", exc_info=e)
-        return f"[Analysis Failed due to an error: {e}]"
-    finally:
-        if os.path.exists(local_pdf_filename):
-            os.remove(local_pdf_filename)
-
-# --- Helper function for paper processing ---
-def _process_paper_for_email(paper):
-    analysis_text = _get_full_text_analysis(paper)
-    
-    doc_lines = []
-    doc_lines.append(f"# {paper['title']}")
-    doc_lines.append(f"**Authors:** {', '.join(paper['authors'])}")
-    doc_lines.append(f"**Link:** {paper['pdf_url']}")
-    doc_lines.append(f"**Published:** {paper['published']}")
-    doc_lines.append(f"**Categories:** {', '.join(paper['categories'])}")
-    doc_lines.append("\n---\n")
-    doc_lines.append("## AI-Generated Analysis (Full Text)")
-    doc_lines.append(analysis_text)
-    
-    sanitized_title = re.sub(r'[\\/*?:"<>|]',"", paper['title'])
-    filename = f"{sanitized_title}.md"
-    content = "\n".join(doc_lines)
-
-    # Save the analysis file locally using an absolute path
-    save_path = os.path.join(RESULTS_DIR, filename)
-    try:
-        os.makedirs(RESULTS_DIR, exist_ok=True) # Ensure directory exists
-        with open(save_path, 'w', encoding='utf-8') as f:
-            f.write(content)
-        app.logger.info(f"Successfully saved analysis to {save_path}")
-    except Exception as e:
-        app.logger.error(f"Failed to save analysis file {save_path}: {e}")
-
-    return {
-        'filename': filename,
-        'content': content
-    }
-
-# --- Fetching Logic ---
-def fetch_task_wrapper(date_range=None, categories=None, keywords=None):
-    """A wrapper to run the fetch logic and update the status."""
-    global task_status, results_cache
-    try:
-        # User wants to see all papers, not filter them, so we don't check history here.
-        papers_by_category = arxiv_fetcher.fetch_papers(date_range, categories, keywords)
-        
-        all_papers_dict = {p['entry_id']: p for papers in papers_by_category.values() for p in papers}
-        
-        total_unique_papers = len(all_papers_dict)
-        app.logger.info(f"Found {total_unique_papers} papers.")
-
-        if total_unique_papers > 0:
-            results_cache = list(all_papers_dict.values())
-            task_status['status'] = 'review_ready'
-            task_status['message'] = f"Found {total_unique_papers} papers. Ready for review."
-        else:
-            task_status['status'] = 'success'
-            task_status['message'] = "Process finished. No new papers found."
-    except Exception as e:
-        task_status['status'] = 'error'
-        task_status['message'] = str(e)
-        app.logger.error("Exception in fetch_task_wrapper:", exc_info=e)
-    finally:
-        app.logger.info(f"Fetch task finished with status: {task_status['status']}")
+# --- API Endpoints ---
 
 @app.route('/api/run-fetch', methods=['POST'])
 def run_fetch():
@@ -173,10 +48,85 @@ def run_fetch():
     
     return jsonify({"message": "Fetch process started successfully."}), 202
 
-# --- Analysis and Emailing Logic (Bulk) ---
+# --- Single Paper Analysis Workflow ---
+
+@app.route('/api/analyze-paper', methods=['POST'])
+def analyze_paper():
+    """Triggers the analysis for a single paper in the background."""
+    paper = request.json.get('paper')
+    if not paper:
+        return jsonify({"error": "Paper data is required."}), 400
+    
+    thread = threading.Thread(target=run_analysis_for_paper, args=(paper,))
+    thread.daemon = True
+    thread.start()
+    
+    app.logger.info(f"Started background analysis for {paper.get('entry_id')}")
+    return jsonify({"message": "Analysis has been started."}), 202
+
+@app.route('/api/analysis-status/<path:paper_id>', methods=['GET'])
+def get_analysis_status(paper_id):
+    """
+    Checks if an analysis result file exists. If so, returns the content.
+    If not, returns a 'running' status.
+    """
+    title = request.args.get('title')
+    if not title:
+        return jsonify({"status": "error", "message": "Title parameter is required."}), 400
+
+    sanitized_title = re.sub(r'[\\/*?:"<>|]',"", title)
+    filename = f"{sanitized_title}.md"
+    file_path = os.path.join(RESULTS_DIR, filename)
+
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            return jsonify({"status": "success", "content": content})
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
+    else:
+        return jsonify({"status": "running"})
+
+@app.route('/api/email-result', methods=['POST'])
+def email_result():
+    """Emails an already generated analysis result."""
+    data = request.json
+    paper = data.get('paper')
+    recipient_email = data.get('email')
+
+    if not paper or not recipient_email:
+        return jsonify({"error": "Paper data and recipient email are required."}), 400
+
+    sanitized_title = re.sub(r'[\\/*?:"<>|]',"", paper['title'])
+    filename = f"{sanitized_title}.md"
+    file_path = os.path.join(RESULTS_DIR, filename)
+
+    if not os.path.exists(file_path):
+        return jsonify({"error": "Analysis result not found. Please analyze the paper first."}), 404
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        file_to_send = {'filename': filename, 'content': content}
+        subject = paper.get('title', 'Single Paper Analysis')
+
+        email_sent = email_sender.send_email([file_to_send], 1, recipient_email, subject)
+
+        if email_sent:
+            return jsonify({"message": "Email sent successfully."})
+        else:
+            return jsonify({"error": "Failed to send email."}), 500
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# --- Bulk Analysis Workflow ---
+
 def analysis_task_wrapper(selected_papers, recipient_email=None):
     """
-    Wrapper for the bulk analysis and emailing task.
+    Wrapper for the bulk analysis and emailing task, using the new analysis manager.
     """
     global task_status
     try:
@@ -184,13 +134,11 @@ def analysis_task_wrapper(selected_papers, recipient_email=None):
         total_papers = len(selected_papers)
         
         for i, paper in enumerate(selected_papers):
-            files_to_zip.append(_process_paper_for_email(paper))
+            # This now uses the caching mechanism implicitly
+            files_to_zip.append(process_paper_for_email(paper, task_status, app.logger))
 
-        subject = None
-        if total_papers == 1:
-            subject = selected_papers[0].get('title', 'Single Paper Analysis')
-
-        task_status['message'] = f"All {total_papers} papers analyzed. Zipping and sending email..."
+        subject = f"Bulk Analysis Results for {total_papers} Papers"
+        task_status['message'] = f"All {total_papers} papers processed. Zipping and sending email..."
         email_sent = email_sender.send_email(files_to_zip, total_papers, recipient_email, subject)
 
         if email_sent:
@@ -199,7 +147,7 @@ def analysis_task_wrapper(selected_papers, recipient_email=None):
             task_status['message'] = f"Process complete. Emailed {total_papers} analyzed papers."
         else:
             task_status['status'] = 'error'
-            task_status['message'] = "Email sending failed during analysis stage."
+            task_status['message'] = "Email sending failed during bulk analysis stage."
 
     except Exception as e:
         task_status['status'] = 'error'
@@ -207,6 +155,54 @@ def analysis_task_wrapper(selected_papers, recipient_email=None):
         app.logger.error("Exception in analysis_task_wrapper:", exc_info=e)
     finally:
         app.logger.info(f"Bulk analysis task finished with status: {task_status['status']}")
+
+@app.route('/api/analyze-and-email', methods=['POST'])
+def analyze_and_email():
+    """Starts the bulk analysis and emailing process for selected papers."""
+    global task_status
+    if task_status['status'] == 'running':
+        return jsonify({"message": "A task is already in progress."}), 409
+
+    data = request.json if request.json else {}
+    selected_papers = data.get('papers', [])
+    recipient_email = data.get('email', None)
+
+    if not selected_papers:
+        return jsonify({"message": "No papers selected for analysis."}), 400
+
+    task_status['status'] = 'running'
+    task_status['message'] = 'Bulk analysis task started...'
+    
+    thread = threading.Thread(target=analysis_task_wrapper, args=(selected_papers, recipient_email))
+    thread.daemon = True
+    thread.start()
+    
+    return jsonify({"message": "Bulk analysis process started successfully."}), 202
+
+# --- Other Endpoints ---
+
+def fetch_task_wrapper(date_range=None, categories=None, keywords=None):
+    """A wrapper to run the fetch logic and update the status."""
+    global task_status, results_cache
+    try:
+        papers_by_category = arxiv_fetcher.fetch_papers(date_range, categories, keywords)
+        all_papers_dict = {p['entry_id']: p for papers in papers_by_category.values() for p in papers}
+        total_unique_papers = len(all_papers_dict)
+        app.logger.info(f"Found {total_unique_papers} papers.")
+
+        if total_unique_papers > 0:
+            results_cache = list(all_papers_dict.values())
+            task_status['status'] = 'review_ready'
+            task_status['message'] = f"Found {total_unique_papers} papers. Ready for review."
+        else:
+            task_status['status'] = 'success'
+            task_status['message'] = "Process finished. No new papers found."
+    except Exception as e:
+        task_status['status'] = 'error'
+        task_status['message'] = str(e)
+        app.logger.error("Exception in fetch_task_wrapper:", exc_info=e)
+    finally:
+        app.logger.info(f"Fetch task finished with status: {task_status['status']}")
 
 @app.route('/api/translate', methods=['POST'])
 @cross_origin(origins="http://localhost:3000", methods=['POST'], headers=['Content-Type'])
@@ -266,57 +262,6 @@ def translate_paper_content():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/analyze-and-email', methods=['POST'])
-def analyze_and_email():
-    """Starts the bulk analysis and emailing process for selected papers."""
-    global task_status
-    if task_status['status'] == 'running':
-        return jsonify({"message": "A task is already in progress."}), 409
-
-    data = request.json if request.json else {}
-    selected_papers = data.get('papers', [])
-    recipient_email = data.get('email', None)
-
-    if not selected_papers:
-        return jsonify({"message": "No papers selected for analysis."}), 400
-
-    task_status['status'] = 'running'
-    task_status['message'] = 'Analysis task started...'
-    
-    thread = threading.Thread(target=analysis_task_wrapper, args=(selected_papers, recipient_email))
-    thread.daemon = True
-    thread.start()
-    
-    return jsonify({"message": "Analysis process started successfully."}), 202
-
-@app.route('/api/analyze-single-paper', methods=['POST'])
-def analyze_single_paper():
-    """
-    Analyzes and emails a single paper synchronously.
-    """
-    data = request.json if request.json else {}
-    paper = data.get('paper')
-    recipient_email = data.get('email', None)
-
-    if not paper:
-        return jsonify({"message": "No paper provided for analysis."}), 400
-
-    try:
-        file_to_zip = [_process_paper_for_email(paper)]
-        subject = paper.get('title', 'Single Paper Analysis')
-        
-        email_sent = email_sender.send_email(file_to_zip, 1, recipient_email, subject)
-
-        if email_sent:
-            save_processed_ids([paper])
-            return jsonify({"message": "Paper analyzed and emailed successfully.", "status": "success"}), 200
-        else:
-            return jsonify({"message": "Email sending failed.", "status": "error"}), 500
-    except Exception as e:
-        app.logger.error("Exception in analyze_single_paper:", exc_info=e)
-        return jsonify({"message": str(e), "status": "error"}), 500
-
-# --- Shared Endpoints ---
 @app.route('/api/status', methods=['GET'])
 def get_status():
     """Returns the current status of the background task."""
