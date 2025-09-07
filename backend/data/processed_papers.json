@@ -75,5 +75,389 @@
         "published": "2025-09-04T17:54:19+00:00",
         "summary": "While inference-time scaling enables LLMs to carry out increasingly long and\ncapable reasoning traces, the patterns and insights uncovered during these\ntraces are immediately discarded once the context window is reset for a new\nquery. External memory is a natural way to persist these discoveries, and\nrecent work has shown clear benefits for reasoning-intensive tasks. We see an\nopportunity to make such memories more broadly reusable and scalable by moving\nbeyond instance-based memory entries (e.g. exact query/response pairs, or\nsummaries tightly coupled with the original problem context) toward\nconcept-level memory: reusable, modular abstractions distilled from solution\ntraces and stored in natural language. For future queries, relevant concepts\nare selectively retrieved and integrated into the prompt, enabling test-time\ncontinual learning without weight updates. Our design introduces new strategies\nfor abstracting takeaways from rollouts and retrieving entries for new queries,\npromoting reuse and allowing memory to expand with additional experiences. On\nthe challenging ARC-AGI benchmark, our method yields a 7.5% relative gain over\na strong no-memory baseline with performance continuing to scale with inference\ncompute. We find abstract concepts to be the most consistent memory design,\noutscoring the baseline at all tested inference compute scales. Moreover, we\nconfirm that dynamically updating memory during test-time outperforms an\notherwise identical fixed memory setting with additional attempts, supporting\nthe hypothesis that solving more problems and abstracting more patterns to\nmemory enables further solutions in a form of self-improvement. Code available\nat https://github.com/matt-seb-ho/arc_memo.",
         "title": "ArcMemo: Abstract Reasoning Composition with Lifelong LLM Memory"
+    },
+    "http://arxiv.org/abs/2509.04250v1": {
+        "authors": [
+            "Shota Arai",
+            "David Selby",
+            "Andrew Vargo",
+            "Sebastian Vollmer"
+        ],
+        "categories": [
+            "stat.ME",
+            "cs.AI",
+            "cs.ET",
+            "cs.IR",
+            "stat.AP"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.04250v1",
+        "pdf_url": "http://arxiv.org/pdf/2509.04250v1",
+        "published": "2025-09-04T14:23:35+00:00",
+        "summary": "Imagine a world where clinical trials need far fewer patients to achieve the\nsame statistical power, thanks to the knowledge encoded in large language\nmodels (LLMs). We present a novel framework for hierarchical Bayesian modeling\nof adverse events in multi-center clinical trials, leveraging LLM-informed\nprior distributions. Unlike data augmentation approaches that generate\nsynthetic data points, our methodology directly obtains parametric priors from\nthe model. Our approach systematically elicits informative priors for\nhyperparameters in hierarchical Bayesian models using a pre-trained LLM,\nenabling the incorporation of external clinical expertise directly into\nBayesian safety modeling. Through comprehensive temperature sensitivity\nanalysis and rigorous cross-validation on real-world clinical trial data, we\ndemonstrate that LLM-derived priors consistently improve predictive performance\ncompared to traditional meta-analytical approaches. This methodology paves the\nway for more efficient and expert-informed clinical trial design, enabling\nsubstantial reductions in the number of patients required to achieve robust\nsafety assessment and with the potential to transform drug safety monitoring\nand regulatory decision making.",
+        "title": "How many patients could we save with LLM priors?"
+    },
+    "http://arxiv.org/abs/2509.04027v1": {
+        "authors": [
+            "Zeyu Gan",
+            "Hao Yi",
+            "Yong Liu"
+        ],
+        "categories": [
+            "cs.AI",
+            "cs.CL"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.04027v1",
+        "pdf_url": "http://arxiv.org/pdf/2509.04027v1",
+        "published": "2025-09-04T09:02:16+00:00",
+        "summary": "Reinforcement Learning (RL) has become a pivotal approach for enhancing the\nreasoning capabilities of Large Language Models (LLMs). However, a significant\ntheoretical gap persists, as traditional token-level RL frameworks fail to\nalign with the reasoning-level nature of complex, multi-step thought processes\nlike Chain-of-Thought (CoT). To address this challenge, we introduce CoT-Space,\na novel theoretical framework that recasts LLM reasoning from a discrete\ntoken-prediction task to an optimization process within a continuous,\nreasoning-level semantic space. By analyzing this process from both a noise\nperspective and a risk perspective, we demonstrate that the convergence to an\noptimal CoT length is a natural consequence of the fundamental trade-off\nbetween underfitting and overfitting. Furthermore, extensive experiments\nprovide strong empirical validation for our theoretical findings. Our framework\nnot only provides a coherent explanation for empirical phenomena such as\noverthinking but also offers a solid theoretical foundation to guide the future\ndevelopment of more effective and generalizable reasoning agents.",
+        "title": "CoT-Space: A Theoretical Framework for Internal Slow-Thinking via Reinforcement Learning"
+    },
+    "http://arxiv.org/abs/2509.03809v1": {
+        "authors": [
+            "Jiaxin Guo",
+            "Daimeng Wei",
+            "Yuanchang Luo",
+            "Xiaoyu Chen",
+            "Zhanglin Wu",
+            "Huan Yang",
+            "Hengchao Shang",
+            "Zongyao Li",
+            "Zhiqiang Rao",
+            "Jinlong Yang",
+            "Hao Yang"
+        ],
+        "categories": [
+            "cs.CL",
+            "cs.AI"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.03809v1",
+        "pdf_url": "http://arxiv.org/pdf/2509.03809v1",
+        "published": "2025-09-04T01:50:20+00:00",
+        "summary": "Large language models (LLMs) have ushered in a new era for document-level\nmachine translation (\\textit{doc}-mt), yet their whole-document outputs\nchallenge existing evaluation methods that assume sentence-by-sentence\nalignment. We introduce \\textit{\\textbf{Align-then-Slide}}, a complete\nevaluation framework for ultra-long doc-mt. In the Align stage, we\nautomatically infer sentence-level source-target correspondences and rebuild\nthe target to match the source sentence number, resolving omissions and\nmany-to-one/one-to-many mappings. In the n-Chunk Sliding Evaluate stage, we\ncalculate averaged metric scores under 1-, 2-, 3- and 4-chunk for\nmulti-granularity assessment. Experiments on the WMT benchmark show a Pearson\ncorrelation of 0.929 between our method with expert MQM rankings. On a newly\ncurated real-world test set, our method again aligns closely with human\njudgments. Furthermore, preference data produced by Align-then-Slide enables\neffective CPO training and its direct use as a reward model for GRPO, both\nyielding translations preferred over a vanilla SFT baseline. The results\nvalidate our framework as an accurate, robust, and actionable evaluation tool\nfor doc-mt systems.",
+        "title": "Align-then-Slide: A complete evaluation framework for Ultra-Long Document-Level Machine Translation"
+    },
+    "http://arxiv.org/abs/2509.03768v1": {
+        "authors": [
+            "Connor Walker",
+            "Koorosh Aslansefat",
+            "Mohammad Naveed Akram",
+            "Yiannis Papadopoulos"
+        ],
+        "categories": [
+            "cs.AI",
+            "stat.ML"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.03768v1",
+        "pdf_url": "http://arxiv.org/pdf/2509.03768v1",
+        "published": "2025-09-03T23:24:17+00:00",
+        "summary": "Accuracy and safety are paramount in Offshore Wind (OSW) maintenance, yet\nconventional Large Language Models (LLMs) often fail when confronted with\nhighly specialised or unexpected scenarios. We introduce RAGuard, an enhanced\nRetrieval-Augmented Generation (RAG) framework that explicitly integrates\nsafety-critical documents alongside technical manuals.By issuing parallel\nqueries to two indices and allocating separate retrieval budgets for knowledge\nand safety, RAGuard guarantees both technical depth and safety coverage. We\nfurther develop a SafetyClamp extension that fetches a larger candidate pool,\n\"hard-clamping\" exact slot guarantees to safety. We evaluate across sparse\n(BM25), dense (Dense Passage Retrieval) and hybrid retrieval paradigms,\nmeasuring Technical Recall@K and Safety Recall@K. Both proposed extensions of\nRAG show an increase in Safety Recall@K from almost 0\\% in RAG to more than\n50\\% in RAGuard, while maintaining Technical Recall above 60\\%. These results\ndemonstrate that RAGuard and SafetyClamp have the potential to establish a new\nstandard for integrating safety assurance into LLM-powered decision support in\ncritical maintenance contexts.",
+        "title": "RAGuard: A Novel Approach for in-context Safe Retrieval Augmented Generation for LLMs"
+    },
+    "http://arxiv.org/abs/2509.04011v1": {
+        "authors": [
+            "Or Shachar",
+            "Uri Katz",
+            "Yoav Goldberg",
+            "Oren Glickman"
+        ],
+        "categories": [
+            "cs.IR",
+            "cs.AI",
+            "cs.CL"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.04011v1",
+        "pdf_url": "http://arxiv.org/pdf/2509.04011v1",
+        "published": "2025-09-04T08:42:23+00:00",
+        "summary": "We present NER Retriever, a zero-shot retrieval framework for ad-hoc Named\nEntity Retrieval, a variant of Named Entity Recognition (NER), where the types\nof interest are not provided in advance, and a user-defined type description is\nused to retrieve documents mentioning entities of that type. Instead of relying\non fixed schemas or fine-tuned models, our method builds on internal\nrepresentations of large language models (LLMs) to embed both entity mentions\nand user-provided open-ended type descriptions into a shared semantic space. We\nshow that internal representations, specifically the value vectors from\nmid-layer transformer blocks, encode fine-grained type information more\neffectively than commonly used top-layer embeddings. To refine these\nrepresentations, we train a lightweight contrastive projection network that\naligns type-compatible entities while separating unrelated types. The resulting\nentity embeddings are compact, type-aware, and well-suited for nearest-neighbor\nsearch. Evaluated on three benchmarks, NER Retriever significantly outperforms\nboth lexical and dense sentence-level retrieval baselines. Our findings provide\nempirical support for representation selection within LLMs and demonstrate a\npractical solution for scalable, schema-free entity retrieval. The NER\nRetriever Codebase is publicly available at\nhttps://github.com/ShacharOr100/ner_retriever",
+        "title": "NER Retriever: Zero-Shot Named Entity Retrieval with Type-Aware Embeddings"
+    },
+    "http://arxiv.org/abs/2509.04066v1": {
+        "authors": [
+            "Hicham Bourhil",
+            "Yacine El Younoussi"
+        ],
+        "categories": [
+            "cs.CL"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.04066v1",
+        "pdf_url": "http://arxiv.org/pdf/2509.04066v1",
+        "published": "2025-09-04T09:55:16+00:00",
+        "summary": "The recent advancements in Artificial Intelligence (AI) in general, and in\nNatural Language Processing (NLP) in particular, and some of its applications\nsuch as chatbots, have led to their implementation in different domains like\neducation, healthcare, tourism, and customer service. Since the COVID-19\npandemic, there has been an increasing interest in these digital technologies\nto allow and enhance remote access. In education, e-learning systems have been\nmassively adopted worldwide. The emergence of Large Language Models (LLM) such\nas BERT (Bidirectional Encoder Representations from Transformers) and GPT\n(Generative Pre-trained Transformers) made chatbots even more popular. In this\nstudy, we present a survey on existing Arabic chatbots in education and their\ndifferent characteristics such as the adopted approaches, language variety, and\nmetrics used to measure their performance. We were able to identified some\nresearch gaps when we discovered that, despite the success of chatbots in other\nlanguages such as English, only a few educational Arabic chatbots used modern\ntechniques. Finally, we discuss future directions of research in this field.",
+        "title": "Arabic Chatbot Technologies in Education: An Overview"
+    },
+    "http://arxiv.org/abs/2509.03897v1": {
+        "authors": [
+            "Xiaofu Chen",
+            "Israfel Salazar",
+            "Yova Kementchedjhieva"
+        ],
+        "categories": [
+            "cs.CV",
+            "cs.CL"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.03897v1",
+        "pdf_url": "http://arxiv.org/pdf/2509.03897v1",
+        "published": "2025-09-04T05:43:50+00:00",
+        "summary": "As interest grows in generating long, detailed image captions, standard\nevaluation metrics become increasingly unreliable. N-gram-based metrics though\nefficient, fail to capture semantic correctness. Representational Similarity\n(RS) metrics, designed to address this, initially saw limited use due to high\ncomputational costs, while today, despite advances in hardware, they remain\nunpopular due to low correlation to human judgments. Meanwhile, metrics based\non large language models (LLMs) show strong correlation with human judgments,\nbut remain too expensive for iterative use during model development.\n  We introduce SPECS (Specificity-Enhanced CLIPScore), a reference-free RS\nmetric tailored to long image captioning. SPECS modifies CLIP with a new\nobjective that emphasizes specificity: rewarding correct details and penalizing\nincorrect ones. We show that SPECS matches the performance of open-source\nLLM-based metrics in correlation to human judgments, while being far more\nefficient. This makes it a practical alternative for iterative checkpoint\nevaluation during image captioning model development.Our code can be found at\nhttps://github.com/mbzuai-nlp/SPECS.",
+        "title": "SPECS: Specificity-Enhanced CLIP-Score for Long Image Caption Evaluation"
+    },
+    "http://arxiv.org/abs/2509.03957v1": {
+        "authors": [
+            "Ruiling Guo",
+            "Xinwei Yang",
+            "Chen Huang",
+            "Tong Zhang",
+            "Yong Hu"
+        ],
+        "categories": [
+            "cs.CL",
+            "cs.AI"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.03957v1",
+        "pdf_url": "http://arxiv.org/pdf/2509.03957v1",
+        "published": "2025-09-04T07:33:44+00:00",
+        "summary": "The effectiveness of large language models (LLMs) to fact-check\nmisinformation remains uncertain, despite their growing use. To this end, we\npresent CANDY, a benchmark designed to systematically evaluate the capabilities\nand limitations of LLMs in fact-checking Chinese misinformation. Specifically,\nwe curate a carefully annotated dataset of ~20k instances. Our analysis shows\nthat current LLMs exhibit limitations in generating accurate fact-checking\nconclusions, even when enhanced with chain-of-thought reasoning and few-shot\nprompting. To understand these limitations, we develop a taxonomy to categorize\nflawed LLM-generated explanations for their conclusions and identify factual\nfabrication as the most common failure mode. Although LLMs alone are unreliable\nfor fact-checking, our findings indicate their considerable potential to\naugment human performance when deployed as assistive tools in scenarios. Our\ndataset and code can be accessed at https://github.com/SCUNLP/CANDY",
+        "title": "CANDY: Benchmarking LLMs' Limitations and Assistive Potential in Chinese Misinformation Fact-Checking"
+    },
+    "http://arxiv.org/abs/2503.20271v1": {
+        "authors": [
+            "Haoqin Tu",
+            "Weitao Feng",
+            "Hardy Chen",
+            "Hui Liu",
+            "Xianfeng Tang",
+            "Cihang Xie"
+        ],
+        "categories": [
+            "cs.CV",
+            "cs.CL"
+        ],
+        "entry_id": "http://arxiv.org/abs/2503.20271v1",
+        "pdf_url": "http://arxiv.org/pdf/2503.20271v1",
+        "published": "2025-03-26T06:38:31+00:00",
+        "summary": "Process-supervised reward models serve as a fine-grained function that\nprovides detailed step-wise feedback to model responses, facilitating effective\nselection of reasoning trajectories for complex tasks. Despite its advantages,\nevaluation on PRMs remains less explored, especially in the multimodal domain.\nTo address this gap, this paper first benchmarks current vision large language\nmodels (VLLMs) as two types of reward models: output reward models (ORMs) and\nprocess reward models (PRMs) on multiple vision-language benchmarks, which\nreveal that neither ORM nor PRM consistently outperforms across all tasks, and\nsuperior VLLMs do not necessarily yield better rewarding performance. To\nfurther advance evaluation, we introduce ViLBench, a vision-language benchmark\ndesigned to require intensive process reward signals. Notably, OpenAI's GPT-4o\nwith Chain-of-Thought (CoT) achieves only 27.3% accuracy, indicating the\nbenchmark's challenge for current VLLMs. Lastly, we preliminarily showcase a\npromising pathway towards bridging the gap between general VLLMs and reward\nmodels -- by collecting 73.6K vision-language process reward data using an\nenhanced tree-search algorithm, our 3B model is able to achieve an average\nimprovement of 3.3% over standard CoT and up to 2.5% compared to its untrained\ncounterpart on ViLBench by selecting OpenAI o1's generations. We release the\nimplementations at https://ucsc-vlaa.github.io/ViLBench with our code, model,\nand data.",
+        "title": "ViLBench: A Suite for Vision-Language Process Reward Modeling"
+    },
+    "http://arxiv.org/abs/2502.18443v3": {
+        "authors": [
+            "Jake Poznanski",
+            "Aman Rangapur",
+            "Jon Borchardt",
+            "Jason Dunkelberger",
+            "Regan Huff",
+            "Daniel Lin",
+            "Aman Rangapur",
+            "Christopher Wilhelm",
+            "Kyle Lo",
+            "Luca Soldaini"
+        ],
+        "categories": [
+            "cs.CL"
+        ],
+        "entry_id": "http://arxiv.org/abs/2502.18443v3",
+        "pdf_url": "http://arxiv.org/pdf/2502.18443v3",
+        "published": "2025-02-25T18:38:38+00:00",
+        "summary": "PDF documents have the potential to provide trillions of novel, high-quality\ntokens for training language models. However, these documents come in a\ndiversity of types with differing formats and visual layouts that pose a\nchallenge when attempting to extract and faithfully represent the underlying\ncontent for language model use. Traditional open source tools often produce\nlower quality extractions compared to vision language models (VLMs), but\nreliance on the best VLMs can be prohibitively costly (e.g., over 6,240 USD per\nmillion PDF pages for GPT-4o) or infeasible if the PDFs cannot be sent to\nproprietary APIs. We present olmOCR, an open-source toolkit for processing PDFs\ninto clean, linearized plain text in natural reading order while preserving\nstructured content like sections, tables, lists, equations, and more. Our\ntoolkit runs a fine-tuned 7B vision language model (VLM) trained on\nolmOCR-mix-0225, a sample of 260,000 pages from over 100,000 crawled PDFs with\ndiverse properties, including graphics, handwritten text and poor quality\nscans. olmOCR is optimized for large-scale batch processing, able to scale\nflexibly to different hardware setups and can convert a million PDF pages for\nonly 176 USD. To aid comparison with existing systems, we also introduce\nolmOCR-Bench, a curated set of 1,400 PDFs capturing many content types that\nremain challenging even for the best tools and VLMs, including formulas,\ntables, tiny fonts, old scans, and more. We find olmOCR outperforms even top\nVLMs including GPT-4o, Gemini Flash 2 and Qwen-2.5-VL. We openly release all\ncomponents of olmOCR: our fine-tuned VLM model, training code and data, an\nefficient inference pipeline that supports vLLM and SGLang backends, and\nbenchmark olmOCR-Bench.",
+        "title": "olmOCR: Unlocking Trillions of Tokens in PDFs with Vision Language Models"
+    },
+    "http://arxiv.org/abs/2411.15432v2": {
+        "authors": [
+            "Qizhou Chen",
+            "Chengyu Wang",
+            "Dakan Wang",
+            "Taolin Zhang",
+            "Wangyue Li",
+            "Xiaofeng He"
+        ],
+        "categories": [
+            "cs.CL",
+            "cs.CV"
+        ],
+        "entry_id": "http://arxiv.org/abs/2411.15432v2",
+        "pdf_url": "http://arxiv.org/pdf/2411.15432v2",
+        "published": "2024-11-23T03:19:40+00:00",
+        "summary": "Model editing aims to correct inaccurate knowledge, update outdated\ninformation, and incorporate new data into Large Language Models (LLMs) without\nthe need for retraining. This task poses challenges in lifelong scenarios where\nedits must be continuously applied for real-world applications. While some\neditors demonstrate strong robustness for lifelong editing in pure LLMs, Vision\nLLMs (VLLMs), which incorporate an additional vision modality, are not directly\nadaptable to existing LLM editors. In this paper, we propose LiveEdit, a\nLIfelong Vision language modEl Edit to bridge the gap between lifelong LLM\nediting and VLLMs. We begin by training an editing expert generator to\nindependently produce low-rank experts for each editing instance, with the goal\nof correcting the relevant responses of the VLLM. A hard filtering mechanism is\ndeveloped to utilize visual semantic knowledge, thereby coarsely eliminating\nvisually irrelevant experts for input queries during the inference stage of the\npost-edited model. Finally, to integrate visually relevant experts, we\nintroduce a soft routing mechanism based on textual semantic relevance to\nachieve multi-expert fusion. For evaluation, we establish a benchmark for\nlifelong VLLM editing. Extensive experiments demonstrate that LiveEdit offers\nsignificant advantages in lifelong VLLM editing scenarios. Further experiments\nvalidate the rationality and effectiveness of each module design in LiveEdit.",
+        "title": "Lifelong Knowledge Editing for Vision Language Models with Low-Rank Mixture-of-Experts"
+    },
+    "http://arxiv.org/abs/2508.08604v2": {
+        "authors": [
+            "Jihwan Park",
+            "Taehoon song",
+            "Sanghyeok Lee",
+            "Miso Choi",
+            "Hyunwoo J. Kim"
+        ],
+        "categories": [
+            "cs.CV",
+            "cs.AI",
+            "cs.LG"
+        ],
+        "entry_id": "http://arxiv.org/abs/2508.08604v2",
+        "pdf_url": "http://arxiv.org/pdf/2508.08604v2",
+        "published": "2025-08-12T03:37:16+00:00",
+        "summary": "Vision-Language Models (VLMs) have been widely used in various visual\nrecognition tasks due to their remarkable generalization capabilities. As these\nmodels grow in size and complexity, fine-tuning becomes costly, emphasizing the\nneed to reuse adaptation knowledge from 'weaker' models to efficiently enhance\n'stronger' ones. However, existing adaptation transfer methods exhibit limited\ntransferability across models due to their model-specific design and high\ncomputational demands. To tackle this, we propose Transferable Model-agnostic\nadapter (TransMiter), a light-weight adapter that improves vision-language\nmodels 'without backpropagation'. TransMiter captures the knowledge gap between\npre-trained and fine-tuned VLMs, in an 'unsupervised' manner. Once trained,\nthis knowledge can be seamlessly transferred across different models without\nthe need for backpropagation. Moreover, TransMiter consists of only a few\nlayers, inducing a negligible additional inference cost. Notably, supplementing\nthe process with a few labeled data further yields additional performance gain,\noften surpassing a fine-tuned stronger model, with a marginal training cost.\nExperimental results and analyses demonstrate that TransMiter effectively and\nefficiently transfers adaptation knowledge while preserving generalization\nabilities across VLMs of different sizes and architectures in visual\nrecognition tasks.",
+        "title": "Transferable Model-agnostic Vision-Language Model Adaptation for Efficient Weak-to-Strong Generalization"
+    },
+    "http://arxiv.org/abs/2509.03867v1": {
+        "authors": [
+            "Yang Wang",
+            "Chenghao Xiao",
+            "Chia-Yi Hsiao",
+            "Zi Yan Chang",
+            "Chi-Li Chen",
+            "Tyler Loakman",
+            "Chenghua Lin"
+        ],
+        "categories": [
+            "cs.CL"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.03867v1",
+        "pdf_url": "http://arxiv.org/pdf/2509.03867v1",
+        "published": "2025-09-04T03:58:55+00:00",
+        "summary": "We introduce Drivelology, a unique linguistic phenomenon characterised as\n\"nonsense with depth\", utterances that are syntactically coherent yet\npragmatically paradoxical, emotionally loaded, or rhetorically subversive.\nWhile such expressions may resemble surface-level nonsense, they encode\nimplicit meaning requiring contextual inference, moral reasoning, or emotional\ninterpretation. We find that current large language models (LLMs), despite\nexcelling at many natural language processing (NLP) tasks, consistently fail to\ngrasp the layered semantics of Drivelological text. To investigate this, we\nconstruct a small but diverse benchmark dataset of over 1,200 meticulously\ncurated examples, with select instances in English, Mandarin, Spanish, French,\nJapanese, and Korean. Annotation was especially challenging: each of the\nexamples required careful expert review to verify that it truly reflected\nDrivelological characteristics. The process involved multiple rounds of\ndiscussion and adjudication to address disagreements, highlighting the subtle\nand subjective nature of the Drivelology. We evaluate a range of LLMs on\nclassification, generation, and reasoning tasks. Our results reveal clear\nlimitations of LLMs: models often confuse Drivelology with shallow nonsense,\nproduce incoherent justifications, or miss the implied rhetorical function\naltogether. These findings highlight a deeper representational gap in LLMs'\npragmatic understanding and challenge the assumption that statistical fluency\nimplies cognitive comprehension. We release our dataset and code to facilitate\nfurther research in modelling linguistic depth beyond surface-level coherence.",
+        "title": "Drivel-ology: Challenging LLMs with Interpreting Nonsense with Depth"
+    },
+    "http://arxiv.org/abs/2509.02175v2": {
+        "authors": [
+            "Nils Hoehing",
+            "Mayug Maniparambil",
+            "Ellen Rushe",
+            "Noel E. O'Connor",
+            "Anthony Ventresque"
+        ],
+        "categories": [
+            "cs.CV",
+            "cs.AI",
+            "cs.CL",
+            "cs.LG"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.02175v2",
+        "pdf_url": "http://arxiv.org/pdf/2509.02175v2",
+        "published": "2025-09-02T10:32:58+00:00",
+        "summary": "We propose RocketScience, an open-source contrastive VLM benchmark that tests\nfor spatial relation understanding. It is comprised of entirely new real-world\nimage-text pairs covering mostly relative spatial understanding and the order\nof objects. The benchmark is designed to be very easy for humans and hard for\nthe current generation of VLMs, and this is empirically verified. Our results\nshow a striking lack of spatial relation understanding in open source and\nfrontier commercial VLMs and a surprisingly high performance of reasoning\nmodels. Additionally, we perform a disentanglement analysis to separate the\ncontributions of object localization and spatial reasoning in\nchain-of-thought-based models and find that the performance on the benchmark is\nbottlenecked by spatial reasoning and not object localization capabilities. We\nrelease the dataset with a CC-BY-4.0 license and make the evaluation code\navailable at: https://github.com/nilshoehing/rocketscience",
+        "title": "Understanding Space Is Rocket Science -- Only Top Reasoning Models Can Solve Spatial Understanding Tasks"
+    },
+    "http://arxiv.org/abs/2508.20029v1": {
+        "authors": [
+            "Manogna Sreenivas",
+            "Soma Biswas"
+        ],
+        "categories": [
+            "cs.CV"
+        ],
+        "entry_id": "http://arxiv.org/abs/2508.20029v1",
+        "pdf_url": "http://arxiv.org/pdf/2508.20029v1",
+        "published": "2025-08-27T16:33:32+00:00",
+        "summary": "In dynamic environments, unfamiliar objects and distribution shifts are often\nencountered, which challenge the generalization abilities of the deployed\ntrained models. This work addresses Incremental Test Time Adaptation of Vision\nLanguage Models, tackling scenarios where unseen classes and unseen domains\ncontinuously appear during testing. Unlike traditional Test Time Adaptation\napproaches, where the test stream comes only from a predefined set of classes,\nour framework allows models to adapt simultaneously to both covariate and label\nshifts, actively incorporating new classes as they emerge. Towards this goal,\nwe establish a new benchmark for ITTA, integrating single image TTA methods for\nVLMs with active labeling techniques that query an oracle for samples\npotentially representing unseen classes during test time. We propose a\nsegmentation assisted active labeling module, termed SegAssist, which is\ntraining free and repurposes the segmentation capabilities of VLMs to refine\nactive sample selection, prioritizing samples likely to belong to unseen\nclasses. Extensive experiments on several benchmark datasets demonstrate the\npotential of SegAssist to enhance the performance of VLMs in real world\nscenarios, where continuous adaptation to emerging data is essential.\nProject-page:https://manogna-s.github.io/segassist/",
+        "title": "Segmentation Assisted Incremental Test Time Adaptation in an Open World"
+    },
+    "http://arxiv.org/abs/2508.17130v1": {
+        "authors": [
+            "Catherine Hoier",
+            "Khandaker Mamun Ahmed"
+        ],
+        "categories": [
+            "cs.CV"
+        ],
+        "entry_id": "http://arxiv.org/abs/2508.17130v1",
+        "pdf_url": "http://arxiv.org/pdf/2508.17130v1",
+        "published": "2025-08-23T20:12:06+00:00",
+        "summary": "Natural disasters pose significant challenges to timely and accurate damage\nassessment due to their sudden onset and the extensive areas they affect.\nTraditional assessment methods are often labor-intensive, costly, and hazardous\nto personnel, making them impractical for rapid response, especially in\nresource-limited settings. This study proposes a novel, cost-effective\nframework that leverages aerial drone footage, an advanced AI-based video\nsuper-resolution model, Video Restoration Transformer (VRT), and Gemma3:27b, a\n27 billion parameter Visual Language Model (VLM). This integrated system is\ndesigned to improve low-resolution disaster footage, identify structural\ndamage, and classify buildings into four damage categories, ranging from\nno/slight damage to total destruction, along with associated risk levels. The\nmethodology was validated using pre- and post-event drone imagery from the 2023\nTurkey earthquakes (courtesy of The Guardian) and satellite data from the 2013\nMoore Tornado (xBD dataset). The framework achieved a classification accuracy\nof 84.5%, demonstrating its ability to provide highly accurate results.\nFurthermore, the system's accessibility allows non-technical users to perform\npreliminary analyses, thereby improving the responsiveness and efficiency of\ndisaster management efforts.",
+        "title": "Structural Damage Detection Using AI Super Resolution and Visual Language Model"
+    },
+    "http://arxiv.org/abs/2509.02324v1": {
+        "authors": [
+            "Changshi Zhou",
+            "Haichuan Xu",
+            "Ningquan Gu",
+            "Zhipeng Wang",
+            "Bin Cheng",
+            "Pengpeng Zhang",
+            "Yanchao Dong",
+            "Mitsuhiro Hayashibe",
+            "Yanmin Zhou",
+            "Bin He"
+        ],
+        "categories": [
+            "cs.RO"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.02324v1",
+        "pdf_url": "http://arxiv.org/pdf/2509.02324v1",
+        "published": "2025-09-02T13:50:45+00:00",
+        "summary": "Language-guided long-horizon manipulation of deformable objects presents\nsignificant challenges due to high degrees of freedom, complex dynamics, and\nthe need for accurate vision-language grounding. In this work, we focus on\nmulti-step cloth folding, a representative deformable-object manipulation task\nthat requires both structured long-horizon planning and fine-grained visual\nperception. To this end, we propose a unified framework that integrates a Large\nLanguage Model (LLM)-based planner, a Vision-Language Model (VLM)-based\nperception system, and a task execution module. Specifically, the LLM-based\nplanner decomposes high-level language instructions into low-level action\nprimitives, bridging the semantic-execution gap, aligning perception with\naction, and enhancing generalization. The VLM-based perception module employs a\nSigLIP2-driven architecture with a bidirectional cross-attention fusion\nmechanism and weight-decomposed low-rank adaptation (DoRA) fine-tuning to\nachieve language-conditioned fine-grained visual grounding. Experiments in both\nsimulation and real-world settings demonstrate the method's effectiveness. In\nsimulation, it outperforms state-of-the-art baselines by 2.23, 1.87, and 33.3\non seen instructions, unseen instructions, and unseen tasks, respectively. On a\nreal robot, it robustly executes multi-step folding sequences from language\ninstructions across diverse cloth materials and configurations, demonstrating\nstrong generalization in practical scenarios. Project page:\nhttps://language-guided.netlify.app/",
+        "title": "Language-Guided Long Horizon Manipulation with LLM-based Planning and Visual Perception"
+    },
+    "http://arxiv.org/abs/2507.23391v1": {
+        "authors": [
+            "Tung M. Luu",
+            "Donghoon Lee",
+            "Younghwan Lee",
+            "Chang D. Yoo"
+        ],
+        "categories": [
+            "cs.LG",
+            "cs.RO"
+        ],
+        "entry_id": "http://arxiv.org/abs/2507.23391v1",
+        "pdf_url": "http://arxiv.org/pdf/2507.23391v1",
+        "published": "2025-07-31T10:07:49+00:00",
+        "summary": "Offline reinforcement learning (RL) provides a powerful framework for\ntraining robotic agents using pre-collected, suboptimal datasets, eliminating\nthe need for costly, time-consuming, and potentially hazardous online\ninteractions. This is particularly useful in safety-critical real-world\napplications, where online data collection is expensive and impractical.\nHowever, existing offline RL algorithms typically require reward labeled data,\nwhich introduces an additional bottleneck: reward function design is itself\ncostly, labor-intensive, and requires significant domain expertise. In this\npaper, we introduce PLARE, a novel approach that leverages large\nvision-language models (VLMs) to provide guidance signals for agent training.\nInstead of relying on manually designed reward functions, PLARE queries a VLM\nfor preference labels on pairs of visual trajectory segments based on a\nlanguage task description. The policy is then trained directly from these\npreference labels using a supervised contrastive preference learning objective,\nbypassing the need to learn explicit reward models. Through extensive\nexperiments on robotic manipulation tasks from the MetaWorld, PLARE achieves\nperformance on par with or surpassing existing state-of-the-art VLM-based\nreward generation methods. Furthermore, we demonstrate the effectiveness of\nPLARE in real-world manipulation tasks with a physical robot, further\nvalidating its practical applicability.",
+        "title": "Policy Learning from Large Vision-Language Model Feedback without Reward Modeling"
+    },
+    "http://arxiv.org/abs/2509.00676v1": {
+        "authors": [
+            "Xiyao Wang",
+            "Chunyuan Li",
+            "Jianwei Yang",
+            "Kai Zhang",
+            "Bo Liu",
+            "Tianyi Xiong",
+            "Furong Huang"
+        ],
+        "categories": [
+            "cs.CV",
+            "cs.LG"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.00676v1",
+        "pdf_url": "http://arxiv.org/pdf/2509.00676v1",
+        "published": "2025-08-31T03:08:02+00:00",
+        "summary": "In vision-language modeling, critic models are typically trained to evaluate\noutputs -- assigning scalar scores or pairwise preferences -- rather than to\ngenerate responses. This separation from policy models, which produce the\nresponses, is so entrenched that critics are rarely considered for direct\npolicy use. In this work, we challenge this convention. We propose to\nreorganize preference-labeled critic datasets into verifiable training signals\nand perform reinforcement learning directly on a base generative model,\nproducing LLaVA-Critic-R1, a multimodal critic trained to optimize preference\njudgments while retaining full generation ability. Surprisingly,\nLLaVA-Critic-R1 emerges not only as a top-performing critic but also as a\ncompetitive policy model -- matching or surpassing specialized reasoning VLMs\ntrained with in-domain data across 26 visual reasoning and understanding\nbenchmarks, with an average gain of +5.7% over its base model (Qwen-2.5-VL-7B).\nExtending this approach to existing strong reasoning VLMs yields\nLLaVA-Critic-R1+, which further advances policy performance without sacrificing\ncritic quality, achieving a SoTA performance of 71.9 on MMMU at the 7B scale.\nFinally, we show that the enhanced critic ability benefits inference: applying\nself-critique at test time yields an average +13.8% improvement on five\nrepresentative reasoning tasks without additional training. Our results reveal\nthat RL training on critic data can produce a unified model excelling at both\nevaluation and generation, offering a simple path toward scalable,\nself-improving multimodal systems.",
+        "title": "LLaVA-Critic-R1: Your Critic Model is Secretly a Strong Policy Model"
+    },
+    "http://arxiv.org/abs/2508.09456v1": {
+        "authors": [
+            "Junxian Li",
+            "Beining Xu",
+            "Di Zhang"
+        ],
+        "categories": [
+            "cs.CV",
+            "cs.CL",
+            "cs.CR"
+        ],
+        "entry_id": "http://arxiv.org/abs/2508.09456v1",
+        "pdf_url": "http://arxiv.org/pdf/2508.09456v1",
+        "published": "2025-08-13T03:22:19+00:00",
+        "summary": "Vision-language models (VLMs) have shown significant advancements in tasks\nsuch as visual grounding, where they localize specific objects in images based\non natural language queries and images. However, security issues in visual\ngrounding tasks for VLMs remain underexplored, especially in the context of\nbackdoor attacks. In this paper, we introduce a novel input-aware backdoor\nattack method, IAG, designed to manipulate the grounding behavior of VLMs. This\nattack forces the model to ground a specific target object in the input image,\nregardless of the user's query. We propose an adaptive trigger generator that\nembeds the semantic information of the attack target's description into the\noriginal image using a text-conditional U-Net, thereby overcoming the\nopen-vocabulary attack challenge. To ensure the attack's stealthiness, we\nutilize a reconstruction loss to minimize visual discrepancies between poisoned\nand clean images. Additionally, we introduce a unified method for generating\nattack data. IAG is evaluated theoretically and empirically, demonstrating its\nfeasibility and effectiveness. Notably, our ASR@0.5 on InternVL-2.5-8B reaches\nover 65\\% on various testing sets. IAG also shows promising potential on\nmanipulating Ferret-7B and LlaVA-1.5-7B with very little accuracy decrease on\nclean samples. Extensive specific experiments, such as ablation study and\npotential defense, also indicate the robustness and transferability of our\nattack.",
+        "title": "IAG: Input-aware Backdoor Attack on VLMs for Visual Grounding"
+    },
+    "http://arxiv.org/abs/2508.01057v2": {
+        "authors": [
+            "Fengze Yang",
+            "Bo Yu",
+            "Yang Zhou",
+            "Xuewen Luo",
+            "Zhengzhong Tu",
+            "Chenxi Liu"
+        ],
+        "categories": [
+            "cs.AI",
+            "cs.RO"
+        ],
+        "entry_id": "http://arxiv.org/abs/2508.01057v2",
+        "pdf_url": "http://arxiv.org/pdf/2508.01057v2",
+        "published": "2025-08-01T20:16:04+00:00",
+        "summary": "Autonomous driving (AD) systems relying solely on onboard sensors may fail to\ndetect distant or obstacle hazards, potentially causing preventable collisions;\nhowever, existing transformer-based Vehicle-to-Everything (V2X) approaches,\nwhich mitigate AD sensing limitations, either lack effective multimodal fusion\nand reasoning or struggle to meet real-time performance requirements under\ncomplex, high-dimensional traffic conditions. This paper proposes the Real-time\nEdge-based Autonomous Co-pilot Trajectory planner (REACT), a V2X-integrated\ntrajectory optimization framework for AD based on a fine-tuned lightweight\nVision-Language Model (VLM). REACT integrates infrastructure-provided hazard\nalerts with onboard sensor data, capturing intricate surrounding traffic\ndynamics and vehicle intents through visual embeddings, interpreting precise\nnumerical data from symbolic inputs, and employing contextual reasoning to\ngenerate optimized, safety-oriented trajectories. To ensure robust real-time\ndeployment on edge devices, REACT innovatively employs Residual Trajectory\nFusion (RTF) design and specialized edge-adaptation strategies to reduce model\ncomplexity and improve inference efficiency. Evaluated on the DeepAccident\nbenchmark, REACT achieves state-of-the-art performance, a 77% collision rate\nreduction, a 48.2% Video Panoptic Quality (VPQ), and a 0.57-second inference\nlatency on the Jetson AGX Orin. Ablation studies validate the contribution of\neach input, module, and edge adaptation strategy. These results highlight the\neffectiveness of lightweight VLMs in enabling real-time cooperative planning on\nedge platforms and underscore the potential of language-guided contextual\nreasoning for improving traffic safety and responsiveness.",
+        "title": "Edge-Based Multimodal Sensor Data Fusion with Vision Language Models (VLMs) for Real-time Autonomous Vehicle Accident Avoidance"
     }
 }

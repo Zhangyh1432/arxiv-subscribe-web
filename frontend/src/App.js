@@ -8,7 +8,7 @@ import AnalysisPage from './pages/AnalysisPage';
 import WarehousePage from './pages/WarehousePage';
 import StatusBanner from './components/StatusBanner';
 
-export const API_BASE_URL = 'http://localhost:5001';
+export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001';
 
 function App() {
     const [status, setStatus] = useState('idle');

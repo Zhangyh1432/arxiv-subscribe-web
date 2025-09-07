@@ -5,34 +5,24 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Initialize client in a try-except block to handle potential errors
-try:
-    api_key = os.getenv("DASHSCOPE_API_KEY")
-    if not api_key:
-        print("Warning: DASHSCOPE_API_KEY not set. Analysis will be skipped.")
-        client = None
-    else:
-        client = OpenAI(
-            api_key=api_key,
-            base_url=os.getenv("DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"),
-        )
-except Exception as e:
-    print(f"Error initializing OpenAI client: {e}")
-    client = None
-
 def analyze_paper(title, abstract):
     """
     Calls an LLM to generate a detailed analysis of a paper based on its title and abstract.
     """
-    if not client:
-        return "[Analysis Skipped: API client not initialized]"
+    api_key = os.getenv("DASHSCOPE_ANALYSIS_API_KEY")
+    base_url = os.getenv("DASHSCOPE_ANALYSIS_BASE_URL")
+    model_name = os.getenv("DASHSCOPE_ANALYSIS_MODEL")
 
-    print(f"Analyzing paper (abstract only): {title[:50]}...")
+    if not all([api_key, base_url, model_name]):
+        return "[Analysis Skipped: Analysis API environment variables not fully configured]"
+
+    client = OpenAI(api_key=api_key, base_url=base_url)
+
+    print(f"Analyzing paper (abstract only) with model {model_name}: {title[:50]}...")
     
     with open(os.path.join(os.path.dirname(__file__), '..', 'prompts', 'analyzer_prompt.txt'), 'r', encoding='utf-8') as f:
         prompt_template = f.read()
     
-    # Correctly concatenate the prompt and the paper content
     paper_content = f"Title: {title}\n\nAbstract: {abstract}"
     prompt = (
         prompt_template + 
@@ -43,9 +33,8 @@ def analyze_paper(title, abstract):
 
     try:
         messages = [{"role": "user", "content": prompt}]
-        
         completion = client.chat.completions.create(
-            model="qwen-plus",
+            model=model_name,
             messages=messages
         )
         return completion.choices[0].message.content
@@ -55,12 +44,18 @@ def analyze_paper(title, abstract):
 
 def translate_text(text_to_translate):
     """
-    Calls the specialized Qwen-MT-Turbo model for translation.
+    Calls a specialized LLM for translation.
     """
-    if not client:
-        return "[Translation Skipped: API client not initialized]"
+    api_key = os.getenv("DASHSCOPE_TRANSLATION_API_KEY")
+    base_url = os.getenv("DASHSCOPE_TRANSLATION_BASE_URL")
+    model_name = os.getenv("DASHSCOPE_TRANSLATION_MODEL")
 
-    print(f"Translating text via Qwen-MT-Turbo: {text_to_translate[:50]}...")
+    if not all([api_key, base_url, model_name]):
+        return "[Translation Skipped: Translation API environment variables not fully configured]"
+
+    client = OpenAI(api_key=api_key, base_url=base_url)
+
+    print(f"Translating text via {model_name}: {text_to_translate[:50]}...")
 
     try:
         messages = [{
@@ -75,7 +70,7 @@ def translate_text(text_to_translate):
         }
 
         completion = client.chat.completions.create(
-            model="qwen-mt-turbo",
+            model=model_name,
             messages=messages,
             extra_body={
                 "translation_options": translation_options
@@ -90,16 +85,21 @@ def analyze_full_text(markdown_content: str):
     """
     Calls an LLM to generate a detailed analysis of a paper from its full markdown content.
     """
-    if not client:
-        return "[Analysis Skipped: API client not initialized]"
+    api_key = os.getenv("DASHSCOPE_ANALYSIS_API_KEY")
+    base_url = os.getenv("DASHSCOPE_ANALYSIS_BASE_URL")
+    model_name = os.getenv("DASHSCOPE_ANALYSIS_MODEL")
 
-    print(f"Analyzing full paper text (length: {len(markdown_content)} chars)...")
+    if not all([api_key, base_url, model_name]):
+        return "[Analysis Skipped: Analysis API environment variables not fully configured]"
+
+    client = OpenAI(api_key=api_key, base_url=base_url)
+
+    print(f"Analyzing full paper text with model {model_name} (length: {len(markdown_content)} chars)...")
     
     prompt_template_path = os.path.join(os.path.dirname(__file__), '..', 'prompts', 'analyzer_prompt.txt')
     with open(prompt_template_path, 'r', encoding='utf-8') as f:
         prompt_template = f.read()
     
-    # Correctly concatenate the prompt and the full paper content
     prompt = (
         prompt_template + 
         "\n\n---\n\n" +
@@ -112,7 +112,7 @@ def analyze_full_text(markdown_content: str):
         
         print("Sending full text analysis request to LLM API...")
         completion = client.chat.completions.create(
-            model="qwen-plus",
+            model=model_name,
             messages=messages
         )
         return completion.choices[0].message.content
