@@ -22,17 +22,24 @@ except Exception as e:
 
 def analyze_paper(title, abstract):
     """
-    Calls an LLM to generate a detailed analysis of a paper.
+    Calls an LLM to generate a detailed analysis of a paper based on its title and abstract.
     """
     if not client:
         return "[Analysis Skipped: API client not initialized]"
 
-    print(f"Analyzing paper: {title[:50]}...")
+    print(f"Analyzing paper (abstract only): {title[:50]}...")
     
     with open(os.path.join(os.path.dirname(__file__), '..', 'prompts', 'analyzer_prompt.txt'), 'r', encoding='utf-8') as f:
         prompt_template = f.read()
     
-    prompt = prompt_template.format(title=title, abstract=abstract)
+    # Correctly concatenate the prompt and the paper content
+    paper_content = f"Title: {title}\n\nAbstract: {abstract}"
+    prompt = (
+        prompt_template + 
+        "\n\n---\n\n" +
+        "请基于以上要求, 对以下论文摘要内容进行分析:\n\n" +
+        paper_content
+    )
 
     try:
         messages = [{"role": "user", "content": prompt}]
@@ -92,8 +99,13 @@ def analyze_full_text(markdown_content: str):
     with open(prompt_template_path, 'r', encoding='utf-8') as f:
         prompt_template = f.read()
     
-    # Adapt the prompt for full text analysis
-    prompt = prompt_template.format(title="Full Paper Analysis", abstract=markdown_content)
+    # Correctly concatenate the prompt and the full paper content
+    prompt = (
+        prompt_template + 
+        "\n\n---\n\n" +
+        "请基于以上要求, 对以下论文全文内容进行分析:\n\n" +
+        markdown_content
+    )
 
     try:
         messages = [{"role": "user", "content": prompt}]

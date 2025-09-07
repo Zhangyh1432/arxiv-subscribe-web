@@ -1,0 +1,20 @@
+{
+  "机器学习论文分类组": [
+    "cs.LG",
+    "cs.AI",
+    "cs.CV",
+    "cs.CL",
+    "cs.NE",
+    "stat.ML",
+    "eess.IV",
+    "eess.AS"
+  ],
+  "机器人领域分类组": [
+    "cs.RO",
+    "cs.AI",
+    "cs.SY",
+    "cs.HC",
+    "cs.MA",
+    "math.OC"
+  ]
+}
