@@ -4,34 +4,33 @@ import threading
 import os
 import requests
 import logging
+import shutil
+import json
 from core import arxiv_fetcher, analyzer, email_sender
-from core.history_manager import save_processed_ids
+from core.history_manager import save_processed_papers, PROCESSED_PAPERS_FILE
 from core.analysis_manager import process_paper_for_email, RESULTS_DIR
 import re
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 
-# --- Status and Cache Objects ---
+# --- Global Status and Cache Objects ---
 task_status = {"status": "idle", "message": "The service is idle."}
 results_cache = []
 
 # --- Helper: Analysis Task Runner ---
 def run_analysis_for_paper(paper):
-    """The actual analysis process for a single paper, designed to be run in a thread."""
     dummy_task_status = {'message': ''} 
     process_paper_for_email(paper, dummy_task_status, app.logger)
-    save_processed_ids([paper])
+    save_processed_papers([paper])
     app.logger.info(f"Background analysis finished for {paper.get('entry_id')}")
 
 # --- API Endpoints ---
 
 @app.route('/api/run-fetch', methods=['POST'])
 def run_fetch():
-    """Starts the fetching process based on criteria from the frontend."""
     global task_status, results_cache
     if task_status['status'] == 'running':
         return jsonify({"message": "A task is already in progress."}), 409
@@ -52,7 +51,6 @@ def run_fetch():
 
 @app.route('/api/analyze-paper', methods=['POST'])
 def analyze_paper():
-    """Triggers the analysis for a single paper in the background."""
     paper = request.json.get('paper')
     if not paper:
         return jsonify({"error": "Paper data is required."}), 400
@@ -66,18 +64,7 @@ def analyze_paper():
 
 @app.route('/api/analysis-status/<path:paper_id>', methods=['GET'])
 def get_analysis_status(paper_id):
-    """
-    Checks if an analysis result file exists. If so, returns the content.
-    If not, returns a 'running' status.
-    """
-    title = request.args.get('title')
-    if not title:
-        return jsonify({"status": "error", "message": "Title parameter is required."}), 400
-
-    sanitized_title = re.sub(r'[\\/*?:"<>|]',"", title)
-    filename = f"{sanitized_title}.md"
-    file_path = os.path.join(RESULTS_DIR, filename)
-
+    file_path = os.path.join(RESULTS_DIR, paper_id, 'analysis.md')
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -90,59 +77,48 @@ def get_analysis_status(paper_id):
 
 @app.route('/api/email-result', methods=['POST'])
 def email_result():
-    """Emails an already generated analysis result."""
     data = request.json
     paper = data.get('paper')
     recipient_email = data.get('email')
-
     if not paper or not recipient_email:
         return jsonify({"error": "Paper data and recipient email are required."}), 400
-
-    sanitized_title = re.sub(r'[\\/*?:"<>|]',"", paper['title'])
-    filename = f"{sanitized_title}.md"
-    file_path = os.path.join(RESULTS_DIR, filename)
-
+    entry_id_short = paper['entry_id'].split('/')[-1]
+    file_path = os.path.join(RESULTS_DIR, entry_id_short, 'analysis.md')
     if not os.path.exists(file_path):
-        return jsonify({"error": "Analysis result not found. Please analyze the paper first."}), 404
-
+        return jsonify({"error": "Analysis result not found."}), 404
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
-        
-        file_to_send = {'filename': filename, 'content': content}
+        sanitized_title = re.sub(r'[\\/*?:"<>|]',"", paper['title'])
+        email_filename = f"{sanitized_title}.md"
+        file_to_send = {'filename': email_filename, 'content': content}
         subject = paper.get('title', 'Single Paper Analysis')
-
         email_sent = email_sender.send_email([file_to_send], 1, recipient_email, subject)
-
         if email_sent:
             return jsonify({"message": "Email sent successfully."})
         else:
             return jsonify({"error": "Failed to send email."}), 500
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 # --- Bulk Analysis Workflow ---
 
 def analysis_task_wrapper(selected_papers, recipient_email=None):
-    """
-    Wrapper for the bulk analysis and emailing task, using the new analysis manager.
-    """
     global task_status
     try:
         files_to_zip = []
         total_papers = len(selected_papers)
         
         for i, paper in enumerate(selected_papers):
-            # This now uses the caching mechanism implicitly
+            task_status['message'] = f"Processing paper {i+1}/{total_papers}: {paper['title'][:40]}..."
             files_to_zip.append(process_paper_for_email(paper, task_status, app.logger))
 
+        task_status['message'] = "Zipping and sending email..."
         subject = f"Bulk Analysis Results for {total_papers} Papers"
-        task_status['message'] = f"All {total_papers} papers processed. Zipping and sending email..."
         email_sent = email_sender.send_email(files_to_zip, total_papers, recipient_email, subject)
 
         if email_sent:
-            save_processed_ids(selected_papers)
+            save_processed_papers(selected_papers)
             task_status['status'] = 'success'
             task_status['message'] = f"Process complete. Emailed {total_papers} analyzed papers."
         else:
@@ -158,21 +134,18 @@ def analysis_task_wrapper(selected_papers, recipient_email=None):
 
 @app.route('/api/analyze-and-email', methods=['POST'])
 def analyze_and_email():
-    """Starts the bulk analysis and emailing process for selected papers."""
     global task_status
-    if task_status['status'] == 'running':
-        return jsonify({"message": "A task is already in progress."}), 409
+    if task_status.get('status') == 'running':
+        return jsonify({"message": "A bulk analysis task is already in progress."}), 409
 
-    data = request.json if request.json else {}
+    data = request.json
     selected_papers = data.get('papers', [])
     recipient_email = data.get('email', None)
 
     if not selected_papers:
         return jsonify({"message": "No papers selected for analysis."}), 400
 
-    task_status['status'] = 'running'
-    task_status['message'] = 'Bulk analysis task started...'
-    
+    task_status = {'status': 'running', 'message': 'Bulk analysis task started...'}
     thread = threading.Thread(target=analysis_task_wrapper, args=(selected_papers, recipient_email))
     thread.daemon = True
     thread.start()
@@ -182,16 +155,16 @@ def analyze_and_email():
 # --- Other Endpoints ---
 
 def fetch_task_wrapper(date_range=None, categories=None, keywords=None):
-    """A wrapper to run the fetch logic and update the status."""
     global task_status, results_cache
     try:
         papers_by_category = arxiv_fetcher.fetch_papers(date_range, categories, keywords)
-        all_papers_dict = {p['entry_id']: p for papers in papers_by_category.values() for p in papers}
-        total_unique_papers = len(all_papers_dict)
+        all_papers = [p for papers in papers_by_category.values() for p in papers]
+        unique_papers = list({p['entry_id']: p for p in all_papers}.values())
+        total_unique_papers = len(unique_papers)
         app.logger.info(f"Found {total_unique_papers} papers.")
 
         if total_unique_papers > 0:
-            results_cache = list(all_papers_dict.values())
+            results_cache = unique_papers
             task_status['status'] = 'review_ready'
             task_status['message'] = f"Found {total_unique_papers} papers. Ready for review."
         else:
@@ -204,17 +177,107 @@ def fetch_task_wrapper(date_range=None, categories=None, keywords=None):
     finally:
         app.logger.info(f"Fetch task finished with status: {task_status['status']}")
 
+@app.route('/api/status', methods=['GET'])
+def get_status():
+    global task_status
+    return jsonify(task_status)
+
+@app.route('/api/results', methods=['GET'])
+def get_results():
+    global results_cache
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 50, type=int)
+    if not results_cache:
+        return jsonify({"message": "No results available."}), 404
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_results = results_cache[start:end]
+    response = {
+        "papers": paginated_results,
+        "total_papers": len(results_cache),
+        "page": page,
+        "per_page": per_page
+    }
+    return jsonify(response)
+
+# --- History/Warehouse Endpoints ---
+
+@app.route('/api/all-analyses', methods=['GET'])
+def get_all_analyses():
+    query = request.args.get('query', '').lower()
+    all_metadata = []
+    if not os.path.exists(RESULTS_DIR):
+        return jsonify([])
+    for paper_id_dir in os.listdir(RESULTS_DIR):
+        metadata_path = os.path.join(RESULTS_DIR, paper_id_dir, 'metadata.json')
+        if os.path.exists(metadata_path):
+            try:
+                with open(metadata_path, 'r', encoding='utf-8') as f:
+                    metadata = json.load(f)
+                metadata['short_id'] = paper_id_dir
+                if not query or (query in metadata.get('title', '').lower()) or (query in metadata.get('entry_id', '').lower()):
+                    all_metadata.append(metadata)
+            except Exception as e:
+                app.logger.error(f"Error reading metadata for {paper_id_dir}: {e}")
+    all_metadata.sort(key=lambda x: x.get('published', ''), reverse=True)
+    return jsonify(all_metadata)
+
+@app.route('/api/recent-analyses', methods=['GET'])
+def get_recent_analyses():
+    all_metadata = []
+    if not os.path.exists(RESULTS_DIR):
+        return jsonify([])
+    for paper_id_dir in os.listdir(RESULTS_DIR):
+        dir_path = os.path.join(RESULTS_DIR, paper_id_dir)
+        if not os.path.isdir(dir_path):
+            continue
+        metadata_path = os.path.join(dir_path, 'metadata.json')
+        if os.path.exists(metadata_path):
+            try:
+                mod_time = os.path.getmtime(dir_path)
+                with open(metadata_path, 'r', encoding='utf-8') as f:
+                    metadata = json.load(f)
+                metadata['short_id'] = paper_id_dir
+                metadata['mod_time'] = mod_time
+                all_metadata.append(metadata)
+            except Exception as e:
+                app.logger.error(f"Error processing directory {paper_id_dir}: {e}", exc_info=True)
+    all_metadata.sort(key=lambda x: x.get('mod_time', 0), reverse=True)
+    return jsonify(all_metadata[:10])
+
+@app.route('/api/clear-cache', methods=['POST'])
+def clear_cache():
+    app.logger.info("Received request to clear cache.")
+    try:
+        if os.path.exists(RESULTS_DIR):
+            for filename in os.listdir(RESULTS_DIR):
+                file_path = os.path.join(RESULTS_DIR, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                except Exception as e:
+                    app.logger.error(f'Failed to delete {file_path}. Reason: {e}')
+        
+        processed_json = PROCESSED_PAPERS_FILE
+        if os.path.exists(processed_json):
+            os.remove(processed_json)
+
+        app.logger.info("Cache cleared successfully.")
+        return jsonify({"message": "Cache cleared successfully."}), 200
+    except Exception as e:
+        app.logger.error(f"Failed to clear cache. Reason: {e}")
+        return jsonify({"message": "An error occurred while clearing the cache."}), 500
+
 @app.route('/api/translate', methods=['POST'])
 @cross_origin(origins="http://localhost:3000", methods=['POST'], headers=['Content-Type'])
 def translate_paper_content():
-    """Translates the title and abstract of a paper."""
     data = request.json
     title = data.get('title')
     abstract = data.get('abstract')
-
     if not title or not abstract:
         return jsonify({"error": "Title and abstract are required."}), 400
-
     try:
         combined_text = f"Title: {title}\n\nAbstract: {abstract}"
         translated_combined = analyzer.translate_text(combined_text)
@@ -261,35 +324,6 @@ def translate_paper_content():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-@app.route('/api/status', methods=['GET'])
-def get_status():
-    """Returns the current status of the background task."""
-    global task_status
-    return jsonify(task_status)
-
-@app.route('/api/results', methods=['GET'])
-def get_results():
-    """Returns paginated results from the cache."""
-    global results_cache
-    
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 50, type=int)
-    
-    if not results_cache:
-        return jsonify({"message": "No results available."}), 404
-
-    start = (page - 1) * per_page
-    end = start + per_page
-    paginated_results = results_cache[start:end]
-
-    response = {
-        "papers": paginated_results,
-        "total_papers": len(results_cache),
-        "page": page,
-        "per_page": per_page
-    }
-    return jsonify(response)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=False)

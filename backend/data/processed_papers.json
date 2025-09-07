@@ -1,0 +1,79 @@
+{
+    "http://arxiv.org/abs/2509.04442v1": {
+        "authors": [
+            "Zhiqiu Xu",
+            "Amish Sethi",
+            "Mayur Naik",
+            "Ser-Nam Lim"
+        ],
+        "categories": [
+            "cs.LG",
+            "cs.AI",
+            "cs.CL",
+            "cs.IR"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.04442v1",
+        "pdf_url": "http://arxiv.org/pdf/2509.04442v1",
+        "published": "2025-09-04T17:59:06+00:00",
+        "summary": "The success of powerful open source Large Language Models (LLMs) has enabled\nthe community to create a vast collection of post-trained models adapted to\nspecific tasks and domains. However, navigating and understanding these models\nremains challenging due to inconsistent metadata and unstructured repositories.\nWe introduce Delta Activations, a method to represent finetuned models as\nvector embeddings by measuring shifts in their internal activations relative to\na base model. This representation allows for effective clustering by domain and\ntask, revealing structure in the model landscape. Delta Activations also\ndemonstrate desirable properties: it is robust across finetuning settings and\nexhibits an additive property when finetuning datasets are mixed. In addition,\nwe show that Delta Activations can embed tasks via few-shot finetuning, and\nfurther explore its use for model selection and merging. We hope Delta\nActivations can facilitate the practice of reusing publicly available models.\nCode is available at https://github.com/OscarXZQ/delta_activations.",
+        "title": "Delta Activations: A Representation for Finetuned Large Language Models"
+    },
+    "http://arxiv.org/abs/2509.04310v1": {
+        "authors": [
+            "Yunbo Long",
+            "Liming Xu",
+            "Lukas Beckenbauer",
+            "Yuhan Liu",
+            "Alexandra Brintrup"
+        ],
+        "categories": [
+            "cs.AI"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.04310v1",
+        "pdf_url": "http://arxiv.org/pdf/2509.04310v1",
+        "published": "2025-09-04T15:23:58+00:00",
+        "summary": "Recent research on Chain-of-Thought (CoT) reasoning in Large Language Models\n(LLMs) has demonstrated that agents can engage in \\textit{complex},\n\\textit{multi-turn} negotiations, opening new avenues for agentic AI. However,\nexisting LLM agents largely overlook the functional role of emotions in such\nnegotiations, instead generating passive, preference-driven emotional responses\nthat make them vulnerable to manipulation and strategic exploitation by\nadversarial counterparts. To address this gap, we present EvoEmo, an\nevolutionary reinforcement learning framework that optimizes dynamic emotional\nexpression in negotiations. EvoEmo models emotional state transitions as a\nMarkov Decision Process and employs population-based genetic optimization to\nevolve high-reward emotion policies across diverse negotiation scenarios. We\nfurther propose an evaluation framework with two baselines -- vanilla\nstrategies and fixed-emotion strategies -- for benchmarking emotion-aware\nnegotiation. Extensive experiments and ablation studies show that EvoEmo\nconsistently outperforms both baselines, achieving higher success rates, higher\nefficiency, and increased buyer savings. This findings highlight the importance\nof adaptive emotional expression in enabling more effective LLM agents for\nmulti-turn negotiation.",
+        "title": "EvoEmo: Towards Evolved Emotional Policies for LLM Agents in Multi-Turn Negotiation"
+    },
+    "http://arxiv.org/abs/2509.04404v1": {
+        "authors": [
+            "Kyra Wilson",
+            "Mattea Sim",
+            "Anna-Maria Gueorguieva",
+            "Aylin Caliskan"
+        ],
+        "categories": [
+            "cs.CY",
+            "cs.AI",
+            "cs.CL",
+            "cs.HC",
+            "K.4.2"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.04404v1",
+        "pdf_url": "http://arxiv.org/pdf/2509.04404v1",
+        "published": "2025-09-04T17:16:26+00:00",
+        "summary": "In this study, we conduct a resume-screening experiment (N=528) where people\ncollaborate with simulated AI models exhibiting race-based preferences (bias)\nto evaluate candidates for 16 high and low status occupations. Simulated AI\nbias approximates factual and counterfactual estimates of racial bias in\nreal-world AI systems. We investigate people's preferences for White, Black,\nHispanic, and Asian candidates (represented through names and affinity groups\non quality-controlled resumes) across 1,526 scenarios and measure their\nunconscious associations between race and status using implicit association\ntests (IATs), which predict discriminatory hiring decisions but have not been\ninvestigated in human-AI collaboration. When making decisions without AI or\nwith AI that exhibits no race-based preferences, people select all candidates\nat equal rates. However, when interacting with AI favoring a particular group,\npeople also favor those candidates up to 90% of the time, indicating a\nsignificant behavioral shift. The likelihood of selecting candidates whose\nidentities do not align with common race-status stereotypes can increase by 13%\nif people complete an IAT before conducting resume screening. Finally, even if\npeople think AI recommendations are low quality or not important, their\ndecisions are still vulnerable to AI bias under certain circumstances. This\nwork has implications for people's autonomy in AI-HITL scenarios, AI and work,\ndesign and evaluation of AI hiring systems, and strategies for mitigating bias\nin collaborative decision-making tasks. In particular, organizational and\nregulatory policy should acknowledge the complex nature of AI-HITL decision\nmaking when implementing these systems, educating people who use them, and\ndetermining which are subject to oversight.",
+        "title": "No Thoughts Just AI: Biased LLM Recommendations Limit Human Agency in Resume Screening"
+    },
+    "http://arxiv.org/abs/2509.04439v1": {
+        "authors": [
+            "Matthew Ho",
+            "Chen Si",
+            "Zhaoxiang Feng",
+            "Fangxu Yu",
+            "Zhijian Liu",
+            "Zhiting Hu",
+            "Lianhui Qin"
+        ],
+        "categories": [
+            "cs.AI",
+            "cs.CL",
+            "cs.LG"
+        ],
+        "entry_id": "http://arxiv.org/abs/2509.04439v1",
+        "pdf_url": "http://arxiv.org/pdf/2509.04439v1",
+        "published": "2025-09-04T17:54:19+00:00",
+        "summary": "While inference-time scaling enables LLMs to carry out increasingly long and\ncapable reasoning traces, the patterns and insights uncovered during these\ntraces are immediately discarded once the context window is reset for a new\nquery. External memory is a natural way to persist these discoveries, and\nrecent work has shown clear benefits for reasoning-intensive tasks. We see an\nopportunity to make such memories more broadly reusable and scalable by moving\nbeyond instance-based memory entries (e.g. exact query/response pairs, or\nsummaries tightly coupled with the original problem context) toward\nconcept-level memory: reusable, modular abstractions distilled from solution\ntraces and stored in natural language. For future queries, relevant concepts\nare selectively retrieved and integrated into the prompt, enabling test-time\ncontinual learning without weight updates. Our design introduces new strategies\nfor abstracting takeaways from rollouts and retrieving entries for new queries,\npromoting reuse and allowing memory to expand with additional experiences. On\nthe challenging ARC-AGI benchmark, our method yields a 7.5% relative gain over\na strong no-memory baseline with performance continuing to scale with inference\ncompute. We find abstract concepts to be the most consistent memory design,\noutscoring the baseline at all tested inference compute scales. Moreover, we\nconfirm that dynamically updating memory during test-time outperforms an\notherwise identical fixed memory setting with additional attempts, supporting\nthe hypothesis that solving more problems and abstracting more patterns to\nmemory enables further solutions in a form of self-improvement. Code available\nat https://github.com/matt-seb-ho/arc_memo.",
+        "title": "ArcMemo: Abstract Reasoning Composition with Lifelong LLM Memory"
+    }
+}
