@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS, cross_origin
 import threading
 import os
@@ -8,7 +8,7 @@ import shutil
 import json
 from core import arxiv_fetcher, analyzer, email_sender
 from core.history_manager import save_processed_papers, PROCESSED_PAPERS_FILE
-from core.analysis_manager import process_paper_for_email, RESULTS_DIR
+from core.analysis_manager import process_paper_for_email, RESULTS_DIR, get_full_text_analysis
 import re
 
 app = Flask(__name__)
@@ -23,7 +23,7 @@ results_cache = []
 # --- Helper: Analysis Task Runner ---
 def run_analysis_for_paper(paper):
     dummy_task_status = {'message': ''} 
-    process_paper_for_email(paper, dummy_task_status, app.logger)
+    get_full_text_analysis(paper, dummy_task_status, app.logger)
     save_processed_papers([paper])
     app.logger.info(f"Background analysis finished for {paper.get('entry_id')}")
 
@@ -65,15 +65,29 @@ def analyze_paper():
 @app.route('/api/analysis-status/<path:paper_id>', methods=['GET'])
 def get_analysis_status(paper_id):
     file_path = os.path.join(RESULTS_DIR, paper_id, 'analysis.md')
+    metadata_path = os.path.join(RESULTS_DIR, paper_id, 'metadata.json') # <-- 添加这一行
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-            return jsonify({"status": "success", "content": content})
+            
+            extracted_image_filenames = []
+            if os.path.exists(metadata_path):
+                with open(metadata_path, 'r', encoding='utf-8') as f_meta:
+                    metadata = json.load(f_meta)
+                    extracted_image_filenames = metadata.get('extracted_image_filenames', [])
+
+            return jsonify({"status": "success", "content": content, "extracted_image_filenames": extracted_image_filenames})
         except Exception as e:
             return jsonify({"status": "error", "message": str(e)}), 500
     else:
         return jsonify({"status": "running"})
+
+@app.route('/api/images/<path:paper_id>/<path:filename>')
+def serve_image(paper_id, filename):
+    """Serves an extracted image from the analysis results directory."""
+    image_directory = os.path.join(RESULTS_DIR, paper_id, 'images')
+    return send_from_directory(image_directory, filename)
 
 @app.route('/api/email-result', methods=['POST'])
 def email_result():
@@ -326,4 +340,6 @@ def translate_paper_content():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=False)
+    # Read port from environment variable, default to 5001 if not set
+    port = int(os.environ.get("BACKEND_PORT", 5001))
+    app.run(host='0.0.0.0', port=port, debug=False)

@@ -1,11 +1,29 @@
 # Environment variables
 .env
 backend/.env
+frontend/.env
 
-# Python cache
+# Python cache and logs
 __pycache__/
 *.pyc
+*.log
+venv/
+env/
+.pytest_cache/
 
-# Data files
+# Data files and temporary files
 backend/data/analysis_results/
 output/
+backend/data/processed_papers.json
+*.pdf
+mineru_response.json
+
+# Node.js/Frontend
+frontend/node_modules/
+frontend/build/
+
+# OS and IDE specific
+.DS_Store
+*~
+*.swp
+*.swo
